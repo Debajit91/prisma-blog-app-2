@@ -62,7 +62,7 @@ enum CommentStatus {
 }
 
 model User {
-  id            String    @id @default(uuid())   // ✅ add default
+  id            String    @id @default(uuid()) // ✅ add default
   name          String
   email         String    @unique
   emailVerified Boolean   @default(false)
@@ -72,11 +72,15 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  role   String? @default("USER")
+  phone  String?
+  status String? @default("ACTIVE")
+
   @@map("user")
 }
 
 model Session {
-  id        String   @id @default(uuid())        // ✅ add default
+  id        String   @id @default(uuid()) // ✅ add default
   expiresAt DateTime
   token     String   @unique
   createdAt DateTime @default(now())
@@ -91,7 +95,7 @@ model Session {
 }
 
 model Account {
-  id         String   @id @default(uuid())       // ✅ add default
+  id         String   @id @default(uuid()) // ✅ add default
   accountId  String
   providerId String
   userId     String
@@ -100,12 +104,19 @@ model Account {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+
   @@index([userId])
   @@map("account")
 }
 
 model Verification {
-  id         String   @id @default(uuid())       // ✅ add default
+  id         String   @id @default(uuid()) // ✅ add default
   identifier String
   value      String
   expiresAt  DateTime
