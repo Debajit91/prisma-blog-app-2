@@ -15,8 +15,12 @@ datasource db {
 
 model Post {
   id         String     @id @default(uuid())
+
+
   title      String     @db.VarChar(225)
   content    String     @db.Text
+
+  
   thumbnail  String?
   isFeatured Boolean    @default(false)
   status     PostStatus @default(PUBLISHED)
