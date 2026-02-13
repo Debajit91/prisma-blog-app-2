@@ -43,8 +43,10 @@ export const auth = betterAuth({
     requireEmailVerification: true
   }, 
   emailVerification: {
+    sendOnSignUp: true,
     sendVerificationEmail: async ( { user, url, token }, request) => {
-      const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`
+     try {
+       const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`
       const info = await transporter.sendMail({
     from: '"Prisma Blog" <prismablog@gmail.com>',
     to: user.email,
@@ -91,7 +93,7 @@ export const auth = betterAuth({
           </p>
 
           <p style="word-break:break-all; font-size:14px; color:#4f46e5;">
-            ${verificationUrl}
+            ${url}
           </p>
 
           <p style="font-size:14px; color:#666666; margin-top:30px;">
@@ -112,6 +114,10 @@ export const auth = betterAuth({
   });
 
   console.log("Message sent:", info.messageId);
+     } catch (error) {
+      console.error(error)
+      throw error;
+     }
 
     },
   },
