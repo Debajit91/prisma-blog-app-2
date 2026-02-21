@@ -1,12 +1,12 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, 
+  secure: false,
   auth: {
     user: process.env.APP_USER,
     pass: process.env.APP_PASS,
@@ -14,52 +14,55 @@ const transporter = nodemailer.createTransport({
 });
 
 export const auth = betterAuth({
-    trustedOrigins: [process.env.APP_URL || "http://localhost:4000"],
-    
-    database: prismaAdapter(prisma, {
-        provider: "postgresql", 
-    }),
+  trustedOrigins: [process.env.APP_URL || "http://localhost:4000"],
 
-    socialProviders: {
-        google: { 
-            clientId: process.env.GOOGLE_CLIENT_ID as string, 
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
-        }, 
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+
+  socialProviders: {
+    google: {
+      accessType: "offline",
+      prompt: "select_account consent",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
-    
-    user:{
-      additionalFields:{
-        role:{
-          type: 'string',
-          defaultValue: "USER",
-          required: false
-        },
-        phone:{
-          type: "string",
-          required: false
-        },
-        status:{
-          type: 'string',
-          defaultValue: "ACTIVE",
-          required: false
-        }
-      }
+  },
+
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "USER",
+        required: false,
+      },
+      phone: {
+        type: "string",
+        required: false,
+      },
+      status: {
+        type: "string",
+        defaultValue: "ACTIVE",
+        required: false,
+      },
     },
-    emailAndPassword: { 
-    enabled: true, 
+  },
+  emailAndPassword: {
+    enabled: true,
     autoSignIn: false,
-    requireEmailVerification: true
-  }, 
+    requireEmailVerification: true,
+  },
   emailVerification: {
     sendOnSignUp: true,
-    sendVerificationEmail: async ( { user, url, token }, request) => {
-     try {
-       const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`
-      const info = await transporter.sendMail({
-    from: '"Prisma Blog" <prismablog@gmail.com>',
-    to: user.email,
-    subject: "Verify your email address",
-    html: `<!DOCTYPE html>
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      try {
+        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+        const info = await transporter.sendMail({
+          from: '"Prisma Blog" <prismablog@gmail.com>',
+          to: user.email,
+          subject: "Verify your email address",
+          html: `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -118,15 +121,14 @@ export const auth = betterAuth({
       </tr>
     </table>
   </body>
-</html>`
-  });
+</html>`,
+        });
 
-  console.log("Message sent:", info.messageId);
-     } catch (error) {
-      console.error(error)
-      throw error;
-     }
-
+        console.log("Message sent:", info.messageId);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     },
   },
 });
