@@ -37,7 +37,9 @@ model Post {
 }
 
 model Comment {
-  id        String        @id @default(uuid())
+  id        String        @id @default(uuid()) // primary key auto index
+
+
   content   String        @db.Text
   authorId  String        @map("author_id")
   postId    String
@@ -50,7 +52,11 @@ model Comment {
   updatedAt DateTime      @updatedAt
 
   @@index([authorId])
-  @@index([postId])
+
+  @@index([postId, createdAt])
+
+
+
   @@map("comments")
 }
 
@@ -68,7 +74,10 @@ enum CommentStatus {
 model User {
   id            String    @id @default(uuid()) // ✅ add default
   name          String
+
   email         String    @unique
+
+
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
