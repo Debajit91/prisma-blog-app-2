@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import { PostController } from "./post.controller";
 import {auth as betterAuth} from "../../lib/auth";
+import { success } from "better-auth/*";
 
 const router= express.Router();
 
@@ -11,8 +12,22 @@ const auth=(...roles: any)=>{
             headers: req.headers as any
         })
 
+        if(!session){
+            return res.status(401).json({
+                success:false,
+                message:"You are not authorized!"
+            })
+        }
+
+        if(!session.user.emailVerified){
+            return res.status(403).json({
+                success: false,
+                message: "Email verification required. Please Verify your email!"
+            })
+        }
+
         console.log(session)
-        next();
+        // next();
     }
 
     
